@@ -54,6 +54,7 @@ type Status struct {
 	PTT       bool
 	Updated   int64
 	LastPTT   int64
+	Source    string
 }
 
 var status Status
@@ -77,6 +78,8 @@ func sendStatus(ctx context.Context, status Status, fbStatus *fbdb.Ref) {
 		prevStatus = &Status{}
 	}
 	*prevStatus = status
+
+	status.Source = "auto"
 
 	err := fbStatus.Set(ctx, status)
 	if err != nil {
@@ -121,7 +124,7 @@ func main() {
 	}
 
 	ham := fbDb.NewRef("hams").Child(config.Callsign)
-	err = ham.Update(ctx, map[string]any{"radio": config.Radio, "source": "automatic"})
+	err = ham.Update(ctx, map[string]any{"bio/radio": config.Radio})
 	if err != nil {
 		log.Warn().Msgf("error initing ham profile: %s", err)
 	}
